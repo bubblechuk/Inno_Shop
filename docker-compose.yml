@@ -1,0 +1,6 @@
+﻿services:
+  user_management:
+    image: user_management
+    build:
+      context: .
+      dockerfile: User_Management/Dockerfile
