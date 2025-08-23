@@ -37,15 +37,56 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> register([FromBody] Registration registration)
+    public async Task<IActionResult> Register([FromBody] Registration registration)
     {
-        if (await _repository.Register(registration))
+        var registerResponse = await _repository.Register(registration);
+        if ( registerResponse != null)
         {
-            return Ok("Вы успешно зарегистрировались!");
+            return Ok(registerResponse);
         }
         else
         {
             return StatusCode(500, "Аккаунт с такой почтой уже сущесвует либо сервер недоступен.");
+        }
+    }
+
+    [HttpPatch("email_confirmation")]
+    public async Task<IActionResult> ConfirmEmail([FromBody] string token)
+    {
+        if (await _repository.ConfirmEmail(token))
+        {
+            return Ok("Почта подтверждена!");
+        }
+        else
+        {
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPost("forgot_password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] string email)
+    {
+        var token = await _repository.ForgotPassword(email);
+        if (token != null)
+        {
+            return Ok(token);
+        }
+        else
+        {
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPatch("reset_password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPassword resetPassword)
+    {
+        if (await _repository.ResetPassword(resetPassword.Token, resetPassword.NewPassword))
+        {
+            return Ok("Пароль изменен!");
+        }
+        else
+        {
+            return StatusCode(500, "Неверный токен либо сервер недоступен.");
         }
     }
 }
